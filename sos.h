@@ -191,6 +191,11 @@ SOS_STATUS sos_append_range(Sos* restrict self, const char* restrict begin, size
 int sos_eq(const Sos* restrict lhs, const Sos* restrict rhs);
 
 /**
+ * Test if two strings are equal.
+ */
+int sos_eq_str(const Sos* restrict lhs, const char* restrict str);
+
+/**
  * Test if two strings are equal, case insensitive.
  */
 int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs);

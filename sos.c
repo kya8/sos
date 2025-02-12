@@ -298,6 +298,18 @@ int sos_eq(const Sos* restrict lhs, const Sos* restrict rhs)
     }
 }
 
+int sos_eq_str(const Sos* restrict lhs, const char* restrict str)
+{
+    const char* s1 = sos_str(lhs);
+
+    for (;; ++s1, ++str) {
+        if (*s1 != *str)
+            return 0;
+        if (*s1 == 0)
+            return 1;
+    }
+}
+
 int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs)
 {
     const char* s1 = sos_str(lhs);
