@@ -7,7 +7,7 @@
 
 // TODO: check for cap/size
 
-#define SOS_MAX_LEN (SIZE_MAX - 2) /* buffer len = str cap + 1, plus cap must be odd */
+#define SOS_MAX_LEN (SIZE_MAX - 2) // buffer len = str cap + 1, plus cap must be odd
 #define SOS_MAX_LEN_FOR_EXPAND ((SOS_MAX_LEN - 1) / 2)
 
 static int
@@ -27,7 +27,7 @@ size_t sos_size(const Sos* self)
 size_t sos_cap(const Sos* self)
 {
     if (is_long(self)) {
-        return self->repr.l.cap; /* The string capacity is always odd in long mode */
+        return self->repr.l.cap; // The string capacity is always odd in long mode
     }
     return SOS_SBO_BUFSIZE - 1;
 }
@@ -40,29 +40,29 @@ const char* sos_str(const Sos* self)
 
 void sos_init(Sos* self)
 {
-    /* We could not check here for unreleased self, since self can be uninitialized. */
+    // We could not check here for unreleased self, since self can be uninitialized.
     self->repr.s.len = 0;
     self->repr.s.data[0] = 0;
 }
 
-int sos_init_with_cap(Sos* self, size_t cap)
+SOS_STATUS sos_init_with_cap(Sos* self, size_t cap)
 {
-    if (cap + 1 > SOS_SBO_BUFSIZE) { /* long */
-        cap |= 1u; /* add 1 if cap is even */
+    if (cap + 1 > SOS_SBO_BUFSIZE) { // long
+        cap |= 1u; // add 1 if cap is even
         self->repr.l.data = malloc(cap + 1);
         if (!self->repr.l.data)
             return SOS_ERROR_ALLOC;
         self->repr.l.data[0] = 0;
         self->repr.l.len = 0;
         self->repr.l.cap = cap;
-    } else { /* short */
+    } else { // short
         sos_init(self);
     }
 
     return SOS_OK;
 }
 
-int sos_init_from_str(Sos* self, const char* str)
+SOS_STATUS sos_init_from_str(Sos* self, const char* str)
 {
     const size_t count = strlen(str);
     if (count <= SOS_SBO_BUFSIZE - 1) {
@@ -85,16 +85,16 @@ void sos_finish(Sos* self)
 {
     if (is_long(self)) {
         free(self->repr.l.data);
-        /* Provide a safeguard, although self should not be used after sos_finish */
-        self->repr.s.len = 0;
-        self->repr.s.data[0] = 0;
     }
+    // Provide a safeguard, although self should not be used after sos_finish, unless re-initialized
+    self->repr.s.len = 0;
+    self->repr.s.data[0] = 0;
 }
 
 void sos_clear(Sos* self)
 {
     if (is_long(self)) {
-        /* Shrinking a long-mode Sos never reverts it to short mode */
+        // Shrinking a long-mode Sos never reverts it to short mode
         self->repr.l.data[0] = 0;
         self->repr.l.len = 0;
     } else {
@@ -106,7 +106,7 @@ void sos_clear(Sos* self)
 /**
  * @pre `cap` must be odd and >= current size; `self` must be in short mode
  */
-static int
+static SOS_STATUS
 sos_short_to_long(Sos* self, size_t cap)
 {
     assert(!is_long(self) && cap % 2 == 1 && cap >= (self->repr.s.len >> 1));
@@ -123,7 +123,7 @@ sos_short_to_long(Sos* self, size_t cap)
     return SOS_OK;
 }
 
-static int
+static SOS_STATUS
 sos_reserve_long(Sos* self, size_t cap)
 {
     if (cap > self->repr.l.cap) {
@@ -138,7 +138,7 @@ sos_reserve_long(Sos* self, size_t cap)
     return SOS_OK;
 }
 
-int sos_reserve(Sos* self, size_t cap)
+SOS_STATUS sos_reserve(Sos* self, size_t cap)
 {
     if (is_long(self)) {
         return sos_reserve_long(self, cap);
@@ -150,7 +150,7 @@ int sos_reserve(Sos* self, size_t cap)
     return SOS_OK;
 }
 
-int sos_push(Sos* self, char c)
+SOS_STATUS sos_push(Sos* self, char c)
 {
     if (is_long(self)) {
         if (self->repr.l.len == SOS_MAX_LEN)
@@ -186,7 +186,7 @@ int sos_push(Sos* self, char c)
         } else {
             self->repr.s.data[len] = c;
             self->repr.s.data[len + 1] = 0;
-            self->repr.s.len += 2; /* 0b10 */
+            self->repr.s.len += 2; // 0b10
         }
     }
 
@@ -212,7 +212,7 @@ char sos_pop(Sos* self)
     return ret;
 }
 
-int sos_append_range(Sos* restrict self, const char* restrict begin, size_t count)
+SOS_STATUS sos_append_range(Sos* restrict self, const char* restrict begin, size_t count)
 {
     if (!is_long(self)) {
         const size_t len = self->repr.s.len >> 1;
@@ -242,7 +242,7 @@ int sos_append_range(Sos* restrict self, const char* restrict begin, size_t coun
     return SOS_OK;
 }
 
-int sos_append(Sos* restrict self, const Sos* restrict rhs)
+SOS_STATUS sos_append(Sos* restrict self, const Sos* restrict rhs)
 {
     if (is_long(rhs)) {
         return sos_append_range(self, rhs->repr.l.data, rhs->repr.l.len);
@@ -250,14 +250,14 @@ int sos_append(Sos* restrict self, const Sos* restrict rhs)
     return sos_append_range(self, rhs->repr.s.data, rhs->repr.s.len >> 1);
 }
 
-int sos_append_str(Sos* restrict self, const char* restrict str)
+SOS_STATUS sos_append_str(Sos* restrict self, const char* restrict str)
 {
     const size_t len = strlen(str);
     return sos_append_range(self, str, len);
 }
 
 // Assumes self is uninitialized, or in short mode.
-int sos_copy(Sos* restrict self, const Sos* restrict rhs)
+SOS_STATUS sos_copy(Sos* restrict self, const Sos* restrict rhs)
 {
     memcpy(self, rhs, sizeof(rhs));
     if (is_long(rhs)) {
