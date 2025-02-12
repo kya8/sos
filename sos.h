@@ -60,7 +60,7 @@ typedef enum {
  *
  * @pre `self` is initialized
  */
-size_t sos_size(const Sos* self);
+size_t sos_len(const Sos* self);
 
 /**
  * Get capacity of the managed buffer (not including the null characater).

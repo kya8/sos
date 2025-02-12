@@ -16,7 +16,7 @@ is_long(const Sos* self)
     return (self->repr.s.len & 1u) == 1;
 }
 
-size_t sos_size(const Sos* self)
+size_t sos_len(const Sos* self)
 {
     if (is_long(self)) {
         return self->repr.l.len;
