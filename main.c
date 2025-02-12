@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "sos.h"
-#include <string.h>
 
 int main(void)
 {
