@@ -72,7 +72,7 @@ SOS_STATUS sos_init_from_cstr(Sos* self, const char* str)
     const size_t count = strlen(str);
     if (count <= SOS_SBO_BUFSIZE - 1) {
         memcpy(self->repr.s.data, str, count + 1);
-        self->repr.s.len = (unsigned char)count * 2;
+        self->repr.s.len = (unsigned char)count << 1;
         return SOS_OK;
     } else {
         char* const data = malloc((count | 1u) + 1);
@@ -155,6 +155,45 @@ SOS_STATUS sos_reserve(Sos* self, size_t cap)
     return SOS_OK;
 }
 
+SOS_STATUS sos_resize(Sos* self, size_t len, char ch)
+{
+    if (is_long(self)) {
+        if (len > self->repr.l.len) {
+            const SOS_STATUS ret = sos_reserve_long(self, len);
+            if (ret != SOS_OK)
+                return ret;
+            for (size_t i = self->repr.l.len; i < len; ++i) {
+                self->repr.l.data[i] = ch;
+            }
+        }
+        self->repr.l.data[len] = 0;
+        self->repr.l.len = len;
+    } else {
+        const size_t current_len = self->repr.s.len >> 1;
+        if (len <= current_len) {
+            self->repr.s.data[len] = 0;
+            self->repr.s.len = (unsigned char)(len << 1);
+        } else if (len + 1 <= SOS_SBO_BUFSIZE) {
+            for (size_t i = current_len; i < len; ++i) {
+                self->repr.s.data[i] = ch;
+            }
+            self->repr.s.data[len] = 0;
+            self->repr.s.len = (unsigned char)(len << 1);
+        } else {
+            const SOS_STATUS ret = sos_short_to_long(self, len | 1u);
+            if (ret != SOS_OK)
+                return ret;
+            for (size_t i = current_len; i < len; ++i) {
+                self->repr.l.data[i] = ch;
+            }
+            self->repr.l.data[len] = 0;
+            self->repr.l.len = len;
+        }
+    }
+
+    return SOS_OK;
+}
+
 void sos_shrink_to_fit(Sos* self)
 {
     if (!is_long(self))
@@ -195,7 +234,7 @@ SOS_STATUS sos_push(Sos* self, char c)
     } else {
         const unsigned char len = self->repr.s.len >> 1;
         if (len == SOS_SBO_BUFSIZE - 1) {
-            const int ret = sos_short_to_long(self, 31); //Should ensure SOS_SBO_BUFSIZE < 32(or else, and UCHAR_MAX) at compile time
+            const SOS_STATUS ret = sos_short_to_long(self, 31); //Should ensure SOS_SBO_BUFSIZE < 32(or else, and UCHAR_MAX) at compile time
             if (ret != SOS_OK)
                 return ret;
 
@@ -238,10 +277,10 @@ SOS_STATUS sos_append_range(Sos* restrict self, const char* restrict begin, size
         if (len + count <= SOS_SBO_BUFSIZE - 1) { //Check for max len
             memcpy(self->repr.s.data + len, begin, count);
             self->repr.s.data[len + count] = 0;
-            self->repr.s.len += (unsigned char)count * 2;
+            self->repr.s.len += (unsigned char)count << 1;
             return SOS_OK;
         } else {
-            const int ret = sos_short_to_long(self, (SOS_SBO_BUFSIZE + count) | 1u);
+            const SOS_STATUS ret = sos_short_to_long(self, (SOS_SBO_BUFSIZE + count) | 1u);
             if (ret != SOS_OK)
                 return ret;
             memcpy(self->repr.l.data + len, begin, count);
@@ -251,7 +290,7 @@ SOS_STATUS sos_append_range(Sos* restrict self, const char* restrict begin, size
         }
     }
     // long mode
-    const int ret = sos_reserve_long(self, self->repr.l.len + count); //Check for max len
+    const SOS_STATUS ret = sos_reserve_long(self, self->repr.l.len + count); //Check for max len
     if (ret != SOS_OK)
         return ret;
 

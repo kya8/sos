@@ -100,7 +100,7 @@ void sos_init(Sos* self);
  * Initialize with a minimum capacity.
  *
  * @pre `self` is not initialized.
- * @post `self` is initialized. Its capacity is at-least `cap`.
+ * @post `self` is initialized with zero length. Its capacity is at-least `cap`.
  */
 SOS_STATUS sos_init_with_cap(Sos* self, size_t cap);
 
@@ -153,6 +153,12 @@ void sos_init_by_move(Sos* restrict self, Sos* restrict rhs);
  * @post `self` has zero length. Its capacity is not modified.
  */
 void sos_clear(Sos* self);
+
+/**
+ * Set length of string.
+ * If `len` is greater than current length, append `ch`.
+ */
+SOS_STATUS sos_resize(Sos* self, size_t len, char ch);
 
 /**
  * Reserve capacity for string.

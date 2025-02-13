@@ -35,6 +35,11 @@ int main(void)
     ASSERT_EQ(sos_pop(&l2), '!');
     ASSERT(sos_eq_cstr(&l2, "Hello woooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooorld"));
 
+    sos_resize(&l1, 3, '?');
+    ASSERT(sos_eq_cstr(&l1, "woo"));
+    sos_resize(&l1, 5, 'o');
+    ASSERT(sos_eq_cstr(&l1, "woooo"));
+
     const size_t l2_cap = sos_cap(&l2);
     sos_clear(&l2);
     ASSERT(sos_len(&l2) == 0);
