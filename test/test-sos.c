@@ -1,7 +1,7 @@
 #include "macros.h"
 #include <sos.h>
 
-int main(void)
+void test_simple(void)
 {
     Sos s1, s2, s3, s4;
     sos_init(&s1);
@@ -51,6 +51,24 @@ int main(void)
     sos_finish(&s4);
     sos_finish(&l1);
     sos_finish(&l2);
+}
+
+void test_fmt(void) {
+    Sos s1, s2;
+    const char* name = "Bob";
+    sos_init_format(&s1, "Hello, %s!", name);
+    sos_init_format(&s2, "There are %d letters in the word %s.", 45, "pneumonoultramicroscopicsilicovolcanoconiosis");
+    ASSERT(sos_eq_cstr(&s1, "Hello, Bob!"));
+    ASSERT(sos_eq_cstr(&s2, "There are 45 letters in the word pneumonoultramicroscopicsilicovolcanoconiosis."));
+
+    sos_finish(&s2);
+    sos_finish(&s1);
+}
+
+int main(void)
+{
+    test_simple();
+    test_fmt();
 
     return 0;
 }

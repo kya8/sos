@@ -2,8 +2,10 @@
 #include <stdlib.h> // alloc
 #include <string.h> // memcpy, strlen
 #include <stdint.h> // SIZE_MAX
+#include <ctype.h>  // tolower
+#include <stdio.h>  // vsnprintf
 #include <assert.h>
-#include <ctype.h> // tolower
+#include <stdarg.h>
 
 // TODO: check for cap/size
 
@@ -84,6 +86,33 @@ SOS_STATUS sos_init_from_cstr(Sos* self, const char* str)
         self->repr.l.cap = count | 1u;
         return SOS_OK;
     }
+}
+
+SOS_STATUS sos_init_format(Sos* self, const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    const size_t len = vsnprintf(NULL, 0, fmt, args);
+    va_end(args);
+
+    if (len + 1 > SOS_SBO_BUFSIZE) {
+        char* const data = malloc((len | 1u) + 1);
+        if (!data)
+            return SOS_ERROR_ALLOC;
+        va_start(args, fmt);
+        vsnprintf(data, len + 1, fmt, args);
+        va_end(args);
+        self->repr.l.data = data;
+        self->repr.l.len = len;
+        self->repr.l.cap = len | 1u;
+    } else {
+        va_start(args, fmt);
+        vsnprintf(self->repr.s.data, len + 1, fmt, args);
+        va_end(args);
+        self->repr.s.len = (unsigned char)(len << 1);
+    }
+
+    return SOS_OK;
 }
 
 void sos_finish(Sos* self)

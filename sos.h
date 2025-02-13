@@ -55,8 +55,10 @@ typedef enum {
 
 // Methods
 // Initialization functions require the argument to be uninitialized.
-// All other operations expect initialized Sos, unless otherwise noted
+// All other operations expect initialized Sos, unless otherwise noted.
 // Violating this precondition leads to undefined behavior.
+
+// If any of the initialization functions fails, the argument is not initialized.
 
 // An Sos string being in short mode or long mode is treated as an implementation detail,
 // deliberately hidden from the public API.
@@ -113,6 +115,14 @@ SOS_STATUS sos_init_with_cap(Sos* self, size_t cap);
 SOS_STATUS sos_init_from_cstr(Sos* self, const char* str);
 
 /**
+ * Initialize using a format string and arguments
+ *
+ * @param[in] fmt `printf`-style format string
+ * @pre `self` is not initialized.
+ */
+SOS_STATUS sos_init_format(Sos* self, const char* fmt, ...);
+
+/**
  * Release allocated memory, if any.
  *
  * @pre `self` is initialized
@@ -127,7 +137,7 @@ void sos_swap(Sos* restrict s1, Sos* restrict s2);
 
 /**
  * Initialize by copying from another.
- * 
+ *
  * @pre `self` is not initialized.
  *      `rhs` is initialized.
  * @post `self` is initialized by copying rhs.
@@ -136,7 +146,7 @@ SOS_STATUS sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs);
 
 /**
  * Initialize by moving from another.
- * 
+ *
  * @pre `self` is not initialized.
  *      `rhs` is initialized.
  * @post `self` is initialized by moving from `rhs`.
