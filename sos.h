@@ -78,12 +78,12 @@ size_t sos_cap(const Sos* self);
 /**
  * Get the null-terminated C string (immutable).
  */
-const char* sos_str(const Sos* self);
+const char* sos_cstr(const Sos* self);
 
 /**
  * Get the null-terminated C string (mutable).
  */
-char* sos_str_mut(Sos* self);
+char* sos_cstr_mut(Sos* self);
 
 // Functions for initialization and life-time management.
 // Initialization functions will not check if `self` holds any resources and release them.
@@ -110,7 +110,7 @@ SOS_STATUS sos_init_with_cap(Sos* self, size_t cap);
  * @pre `self` is not initialized.
  * @post `self` is initialized, with the same content as `str`.
  */
-SOS_STATUS sos_init_from_str(Sos* self, const char* str);
+SOS_STATUS sos_init_from_cstr(Sos* self, const char* str);
 
 /**
  * Release allocated memory, if any.
@@ -187,7 +187,7 @@ SOS_STATUS sos_append(Sos* restrict self, const Sos* restrict rhs);
 /**
  * Append a C string.
  */
-SOS_STATUS sos_append_str(Sos* restrict self, const char* restrict str);
+SOS_STATUS sos_append_cstr(Sos* restrict self, const char* restrict str);
 
 /**
  * Append a contiguous range of chars.
@@ -204,7 +204,7 @@ int sos_eq(const Sos* restrict lhs, const Sos* restrict rhs);
 /**
  * Test if two strings are equal.
  */
-int sos_eq_str(const Sos* restrict lhs, const char* restrict str);
+int sos_eq_cstr(const Sos* restrict lhs, const char* restrict str);
 
 /**
  * Test if two strings are equal, case insensitive.

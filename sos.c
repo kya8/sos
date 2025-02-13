@@ -32,14 +32,14 @@ size_t sos_cap(const Sos* self)
     return SOS_SBO_BUFSIZE - 1;
 }
 
-const char* sos_str(const Sos* self)
+const char* sos_cstr(const Sos* self)
 {
     return is_long(self) ? self->repr.l.data : self->repr.s.data;
 }
 
-char* sos_str_mut(Sos* self)
+char* sos_cstr_mut(Sos* self)
 {
-    return (char*)sos_str(self);
+    return (char*)sos_cstr(self);
 }
 
 
@@ -67,7 +67,7 @@ SOS_STATUS sos_init_with_cap(Sos* self, size_t cap)
     return SOS_OK;
 }
 
-SOS_STATUS sos_init_from_str(Sos* self, const char* str)
+SOS_STATUS sos_init_from_cstr(Sos* self, const char* str)
 {
     const size_t count = strlen(str);
     if (count <= SOS_SBO_BUFSIZE - 1) {
@@ -269,7 +269,7 @@ SOS_STATUS sos_append(Sos* restrict self, const Sos* restrict rhs)
     return sos_append_range(self, rhs->repr.s.data, rhs->repr.s.len >> 1);
 }
 
-SOS_STATUS sos_append_str(Sos* restrict self, const char* restrict str)
+SOS_STATUS sos_append_cstr(Sos* restrict self, const char* restrict str)
 {
     const size_t len = strlen(str);
     return sos_append_range(self, str, len);
@@ -304,8 +304,8 @@ void sos_swap(Sos* restrict s1, Sos* restrict s2)
 
 int sos_eq(const Sos* restrict lhs, const Sos* restrict rhs)
 {
-    const char* s1 = sos_str(lhs);
-    const char* s2 = sos_str(rhs);
+    const char* s1 = sos_cstr(lhs);
+    const char* s2 = sos_cstr(rhs);
 
     for (;; ++s1, ++s2) {
         if (*s1 != *s2)
@@ -315,9 +315,9 @@ int sos_eq(const Sos* restrict lhs, const Sos* restrict rhs)
     }
 }
 
-int sos_eq_str(const Sos* restrict lhs, const char* restrict str)
+int sos_eq_cstr(const Sos* restrict lhs, const char* restrict str)
 {
-    const char* s1 = sos_str(lhs);
+    const char* s1 = sos_cstr(lhs);
 
     for (;; ++s1, ++str) {
         if (*s1 != *str)
@@ -329,8 +329,8 @@ int sos_eq_str(const Sos* restrict lhs, const char* restrict str)
 
 int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs)
 {
-    const char* s1 = sos_str(lhs);
-    const char* s2 = sos_str(rhs);
+    const char* s1 = sos_cstr(lhs);
+    const char* s2 = sos_cstr(rhs);
 
     for (;; ++s1, ++s2) {
         if (tolower(*s1) != tolower(*s2))
