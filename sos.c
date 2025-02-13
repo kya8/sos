@@ -37,6 +37,11 @@ const char* sos_str(const Sos* self)
     return is_long(self) ? self->repr.l.data : self->repr.s.data;
 }
 
+char* sos_str_mut(Sos* self)
+{
+    return (char*)sos_str(self);
+}
+
 
 void sos_init(Sos* self)
 {
@@ -256,8 +261,7 @@ SOS_STATUS sos_append_str(Sos* restrict self, const char* restrict str)
     return sos_append_range(self, str, len);
 }
 
-// Assumes self is uninitialized, or in short mode.
-SOS_STATUS sos_copy(Sos* restrict self, const Sos* restrict rhs)
+SOS_STATUS sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs)
 {
     memcpy(self, rhs, sizeof(rhs));
     if (is_long(rhs)) {
@@ -271,8 +275,7 @@ SOS_STATUS sos_copy(Sos* restrict self, const Sos* restrict rhs)
     return SOS_OK;
 }
 
-// Assumes self is uninitialized, or in short mode.
-void sos_move(Sos* restrict self, Sos* restrict rhs)
+void sos_init_by_move(Sos* restrict self, Sos* restrict rhs)
 {
     sos_swap(self, rhs);
 }

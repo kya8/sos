@@ -7,7 +7,7 @@ int main(void)
     sos_init(&s1);
     sos_init_with_cap(&s2, 32);
     sos_init_from_str(&s3, "Hello");
-    sos_copy(&s4, &s3);
+    sos_init_by_copy(&s4, &s3);
 
     ASSERT(sos_len(&s1) == 0);
     ASSERT(sos_len(&s2) == 0 && sos_cap(&s2) >= 32);

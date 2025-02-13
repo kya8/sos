@@ -53,28 +53,37 @@ typedef enum {
     SOS_ERROR_MAX_CAP
 } SOS_STATUS;
 
+// Methods
+// Initialization functions require the argument to be uninitialized.
+// All other operations expect initialized Sos, unless otherwise noted
+// Violating this precondition leads to undefined behavior.
+
+// An Sos string being in short mode or long mode is treated as an implementation detail,
+// deliberately hidden from the public API.
+
 // Observers
 
 /**
- * Get current length of string (not including the null characater).
- *
- * @pre `self` is initialized
+ * Get current length of string (not including the null character).
  */
 size_t sos_len(const Sos* self);
 
 /**
- * Get capacity of the managed buffer (not including the null characater).
- *
- * @pre `self` is initialized
+ * Get capacity of the managed buffer (not including the null character).
  */
 size_t sos_cap(const Sos* self);
 
+// Deep constness is used, since Sos has exclusive ownership over the char array.
+
 /**
- * Get the null-terminated C string.
- *
- * @pre `self` is initialized
+ * Get the null-terminated C string (immutable).
  */
 const char* sos_str(const Sos* self);
+
+/**
+ * Get the null-terminated C string (mutable).
+ */
+char* sos_str_mut(Sos* self);
 
 // Functions for initialization and life-time management.
 // Initialization functions will not check if `self` holds any resources and release them.
@@ -82,24 +91,24 @@ const char* sos_str(const Sos* self);
 /**
  * Initialize an empty string.
  *
- * @pre `self` isn't initialized, or is in short mode.
- * @post `self` is in short mode, with zero length.
+ * @pre `self` is not initialized.
+ * @post `self` is initialized, with zero length.
  */
 void sos_init(Sos* self);
 
 /**
  * Initialize with a minimum capacity.
  *
- * @pre `self` isn't initialized, or is in short mode.
- * @post `self` is initialized to either short mode or long mode. Its capacity is at-least `cap`.
+ * @pre `self` is not initialized.
+ * @post `self` is initialized. Its capacity is at-least `cap`.
  */
 SOS_STATUS sos_init_with_cap(Sos* self, size_t cap);
 
 /**
- * Initialize with a given C string.
+ * Initialize by copying a given C string.
  *
- * @pre `self` isn't initialized, or is in short mode.
- * @post `self` is initialized to either short mode or long mode, with the same content as `str`.
+ * @pre `self` is not initialized.
+ * @post `self` is initialized, with the same content as `str`.
  */
 SOS_STATUS sos_init_from_str(Sos* self, const char* str);
 
@@ -117,25 +126,30 @@ void sos_finish(Sos* self);
 void sos_swap(Sos* restrict s1, Sos* restrict s2);
 
 /**
- * Initialize a string by copying from another.
+ * Initialize by copying from another.
  * 
- * @pre `self` isn't initialized, or is in short mode.
+ * @pre `self` is not initialized.
  *      `rhs` is initialized.
  * @post `self` is initialized by copying rhs.
  */
-SOS_STATUS sos_copy(Sos* restrict self, const Sos* restrict rhs);
+SOS_STATUS sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs);
 
 /**
- * Same as sos_swap
+ * Initialize by moving from another.
+ * 
+ * @pre `self` is not initialized.
+ *      `rhs` is initialized.
+ * @post `self` is initialized by moving from `rhs`.
+ *       `rhs` is uninitialized.
+ * @note Internally this is same as sos_swap
  */
-void sos_move(Sos* restrict self, Sos* restrict rhs);
+void sos_init_by_move(Sos* restrict self, Sos* restrict rhs);
 
 // Modifiers
 
 /**
  * Set length of string to zero.
  *
- * @pre `self` is initialized
  * @post `self` has zero length. Its capacity is not modified.
  */
 void sos_clear(Sos* self);
@@ -143,43 +157,35 @@ void sos_clear(Sos* self);
 /**
  * Reserve capacity for string.
  *
- * @pre `self` is initialized
  * @post `self` has capacity of at-least `cap`
  */
 SOS_STATUS sos_reserve(Sos* self, size_t cap);
 
 /**
  * Push-back a character.
- *
- * @pre `self` is initialized
  */
 SOS_STATUS sos_push(Sos* self, char c);
 
 /**
  * Pop-back a character.
  *
- * @pre `self` is initialized and not empty.
+ * @pre `self` is not empty.
+ * @return The character that was popped out.
  */
 char sos_pop(Sos* self);
 
 /**
  * Append another `sos` string.
- *
- * @pre `self` and `rhs` is initialized
  */
 SOS_STATUS sos_append(Sos* restrict self, const Sos* restrict rhs);
 
 /**
  * Append a C string.
- *
- * @pre `self` is initialized
  */
 SOS_STATUS sos_append_str(Sos* restrict self, const char* restrict str);
 
 /**
  * Append a contiguous range of chars.
- *
- * @pre `self` is initialized
  */
 SOS_STATUS sos_append_range(Sos* restrict self, const char* restrict begin, size_t count);
 
