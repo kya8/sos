@@ -45,5 +45,12 @@ int main(void)
     ASSERT(sos_len(&l2) == 0);
     ASSERT_EQ(sos_cap(&l2), l2_cap);
 
+    sos_finish(&s1);
+    sos_finish(&s2);
+    sos_finish(&s3);
+    sos_finish(&s4);
+    sos_finish(&l1);
+    sos_finish(&l2);
+
     return 0;
 }
