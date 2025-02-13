@@ -51,7 +51,15 @@ typedef enum {
     SOS_OK = 0,
     SOS_ERROR_ALLOC,
     SOS_ERROR_MAX_CAP
-} SOS_STATUS;
+} SosStatus;
+
+// A struct to hold status code along with pointer to string buffer.
+// Used as a return type.
+typedef struct {
+    SosStatus status;
+    char* str;
+} SosStatusAndBuf;
+
 
 // Methods
 // Initialization functions require the argument to be uninitialized.
@@ -102,17 +110,35 @@ void sos_init(Sos* self);
  * Initialize with a minimum capacity.
  *
  * @pre `self` is not initialized.
- * @post `self` is initialized with zero length. Its capacity is at-least `cap`.
+ * @post On success, `self` is initialized with zero length. Its capacity is at-least `cap`.
  */
-SOS_STATUS sos_init_with_cap(Sos* self, size_t cap);
+SosStatus sos_init_with_cap(Sos* self, size_t cap);
+
+/**
+ * Initialize with given length, leaving content of the string uninitialized.
+ *
+ * @pre `self` is not initialized.
+ * @post On success, `self` is initialized and has length `len`.
+ *       The content of the string is not initialized, but the terminating null byte is written.
+ * @return Status code, plus the managed string buffer on success.
+ */
+SosStatusAndBuf sos_init_for_overwrite(Sos* self, size_t len);
+
+/**
+ * Initialize by copying the given char range.
+ *
+ * @pre `self` is not initialized.
+ * @post On success, `self` is initialized by copying the range.
+ */
+SosStatus sos_init_from_range(Sos* self, const char* begin, size_t count);
 
 /**
  * Initialize by copying a given C string.
  *
  * @pre `self` is not initialized.
- * @post `self` is initialized, with the same content as `str`.
+ * @post On success, `self` is initialized, with the same content as `str`.
  */
-SOS_STATUS sos_init_from_cstr(Sos* self, const char* str);
+SosStatus sos_init_from_cstr(Sos* self, const char* str);
 
 /**
  * Initialize by adopting a C string.
@@ -122,7 +148,7 @@ SOS_STATUS sos_init_from_cstr(Sos* self, const char* str);
  *                Ownership is transferred into `self`, so `self` is responsible for freeing it.
  * @pre `self` is not initialized.
  */
-SOS_STATUS sos_init_adopt_cstr(Sos* self, char* str);
+SosStatus sos_init_adopt_cstr(Sos* self, char* str);
 // We might want to add a function to adopt C string with known size/capacity.
 
 /**
@@ -131,7 +157,7 @@ SOS_STATUS sos_init_adopt_cstr(Sos* self, char* str);
  * @param[in] fmt `printf`-style format string
  * @pre `self` is not initialized.
  */
-SOS_STATUS sos_init_format(Sos* self, const char* fmt, ...);
+SosStatus sos_init_format(Sos* self, const char* fmt, ...);
 
 /**
  * Release allocated memory, if any.
@@ -151,9 +177,9 @@ void sos_swap(Sos* restrict s1, Sos* restrict s2);
  *
  * @pre `self` is not initialized.
  *      `rhs` is initialized.
- * @post `self` is initialized by copying rhs.
+ * @post On success, `self` is initialized by copying rhs.
  */
-SOS_STATUS sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs);
+SosStatus sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs);
 
 /**
  * Initialize by moving from another.
@@ -178,15 +204,24 @@ void sos_clear(Sos* self);
 /**
  * Set length of string.
  * If `len` is greater than current length, append `ch`.
+ *
+ * @post On success, length of string is `len`.
  */
-SOS_STATUS sos_resize(Sos* self, size_t len, char ch);
+SosStatus sos_resize(Sos* self, size_t len, char ch);
+
+/**
+ * Similar to sos_resize, but does not initialize expanded length.
+ *
+ * @post On success, length of string is `len`.
+ */
+SosStatus sos_resize_for_overwrite(Sos* self, size_t len);
 
 /**
  * Reserve capacity for string.
  *
- * @post `self` has capacity of at-least `cap`
+ * @post On success, `self` has capacity of at-least `cap`
  */
-SOS_STATUS sos_reserve(Sos* self, size_t cap);
+SosStatus sos_reserve(Sos* self, size_t cap);
 
 /**
  * Shrink unused capacity, if possible.
@@ -196,7 +231,7 @@ void sos_shrink_to_fit(Sos* self);
 /**
  * Push-back a character.
  */
-SOS_STATUS sos_push(Sos* self, char c);
+SosStatus sos_push(Sos* self, char c);
 
 /**
  * Pop-back a character.
@@ -209,17 +244,17 @@ char sos_pop(Sos* self);
 /**
  * Append another `sos` string.
  */
-SOS_STATUS sos_append(Sos* restrict self, const Sos* restrict rhs);
+SosStatus sos_append(Sos* restrict self, const Sos* restrict rhs);
 
 /**
  * Append a C string.
  */
-SOS_STATUS sos_append_cstr(Sos* restrict self, const char* restrict str);
+SosStatus sos_append_cstr(Sos* restrict self, const char* restrict str);
 
 /**
  * Append a contiguous range of chars.
  */
-SOS_STATUS sos_append_range(Sos* restrict self, const char* restrict begin, size_t count);
+SosStatus sos_append_range(Sos* restrict self, const char* restrict begin, size_t count);
 
 // Comparison
 
