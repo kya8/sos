@@ -88,6 +88,21 @@ SOS_STATUS sos_init_from_cstr(Sos* self, const char* str)
     }
 }
 
+SOS_STATUS sos_init_adopt_cstr(Sos* self, char* str)
+{
+    // We might also move short str to inline buffer...
+
+    const size_t len = strlen(str);
+    self->repr.l.len = len;
+    // Enforce capacity
+    char* const data = realloc(str, (len | 1u) + 1);
+    if (!data)
+        return SOS_ERROR_ALLOC;
+    self->repr.l.cap = len | 1u;
+    self->repr.l.data = data;
+    return SOS_OK;
+}
+
 SOS_STATUS sos_init_format(Sos* self, const char* fmt, ...)
 {
     va_list args;

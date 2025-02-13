@@ -115,6 +115,17 @@ SOS_STATUS sos_init_with_cap(Sos* self, size_t cap);
 SOS_STATUS sos_init_from_cstr(Sos* self, const char* str);
 
 /**
+ * Initialize by adopting a C string.
+ *
+ * @param[in] str The C string to adopt.
+ *                It must have been created by malloc(), calloc(), realloc() etc.
+ *                Ownership is transferred into `self`, so `self` is responsible for freeing it.
+ * @pre `self` is not initialized.
+ */
+SOS_STATUS sos_init_adopt_cstr(Sos* self, char* str);
+// We might want to add a function to adopt C string with known size/capacity.
+
+/**
  * Initialize using a format string and arguments
  *
  * @param[in] fmt `printf`-style format string
@@ -125,8 +136,8 @@ SOS_STATUS sos_init_format(Sos* self, const char* fmt, ...);
 /**
  * Release allocated memory, if any.
  *
- * @pre `self` is initialized
- * @post `self` is uninitialized
+ * @pre `self` is initialized.
+ * @post `self` is uninitialized.
  */
 void sos_finish(Sos* self);
 
