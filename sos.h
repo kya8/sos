@@ -21,7 +21,7 @@ typedef struct {
 typedef struct {
     size_t cap;
     size_t len;
-    char* data; // Invariant: never null
+    char* data; // Invariant: never null in long mode
 } _sos_long;
 #endif
 
@@ -160,6 +160,11 @@ void sos_clear(Sos* self);
  * @post `self` has capacity of at-least `cap`
  */
 SOS_STATUS sos_reserve(Sos* self, size_t cap);
+
+/**
+ * Shrink unused capacity, if possible.
+ */
+void sos_shrink_to_fit(Sos* self);
 
 /**
  * Push-back a character.

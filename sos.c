@@ -155,6 +155,20 @@ SOS_STATUS sos_reserve(Sos* self, size_t cap)
     return SOS_OK;
 }
 
+void sos_shrink_to_fit(Sos* self)
+{
+    if (!is_long(self))
+        return;
+    const size_t min_cap = self->repr.l.len | 1u;
+    if (self->repr.l.cap > min_cap) {
+        char* const data_new = realloc(self->repr.l.data, min_cap);
+        if (!data_new)
+            return;
+        self->repr.l.data = data_new;
+        self->repr.l.cap = min_cap;
+    }
+}
+
 SOS_STATUS sos_push(Sos* self, char c)
 {
     if (is_long(self)) {
