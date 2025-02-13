@@ -316,7 +316,7 @@ SOS_STATUS sos_append_cstr(Sos* restrict self, const char* restrict str)
 
 SOS_STATUS sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs)
 {
-    memcpy(self, rhs, sizeof(rhs));
+    memcpy(self, rhs, sizeof(Sos));
     if (is_long(rhs)) {
         char* const data = malloc(rhs->repr.l.cap + 1);
         if (!data)
