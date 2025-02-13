@@ -1,7 +1,7 @@
 #include "sos.h"
 #include <stdlib.h> // alloc
 #include <string.h> // memcpy, strlen
-#include <limits.h> // SIZE_MAX
+#include <stdint.h> // SIZE_MAX
 #include <assert.h>
 #include <ctype.h> // tolower
 
