@@ -2,7 +2,6 @@
 #include <stdlib.h> // alloc
 #include <string.h> // memcpy, strlen
 #include <stdint.h> // SIZE_MAX
-#include <ctype.h>  // tolower
 #include <stdio.h>  // vsnprintf
 #include <assert.h>
 #include <stdarg.h>
@@ -385,40 +384,38 @@ void sos_swap(Sos* restrict s1, Sos* restrict s2)
     memcpy(s2, &t, sizeof(Sos));
 }
 
-int sos_eq(const Sos* restrict lhs, const Sos* restrict rhs)
+static int
+cmp_cstr(const char* restrict lhs, const char* restrict rhs)
 {
-    const char* s1 = sos_cstr(lhs);
-    const char* s2 = sos_cstr(rhs);
-
-    for (;; ++s1, ++s2) {
-        if (*s1 != *s2)
-            return 0;
-        if (*s1 == 0)
+    for (;; ++lhs, ++rhs) {
+        if (*lhs > *rhs)
             return 1;
+        if (*lhs < *rhs)
+            return -1;
+        if (*lhs == 0)
+            return 0;
     }
 }
 
-int sos_eq_cstr(const Sos* restrict lhs, const char* restrict str)
+int sos_cmp(const Sos* restrict lhs, const Sos* restrict rhs)
 {
-    const char* s1 = sos_cstr(lhs);
-
-    for (;; ++s1, ++str) {
-        if (*s1 != *str)
-            return 0;
-        if (*s1 == 0)
-            return 1;
-    }
+    return cmp_cstr(sos_cstr(lhs), sos_cstr(rhs));
 }
 
-int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs)
+int sos_cmp_cstr(const Sos* restrict lhs, const char* restrict str)
 {
-    const char* s1 = sos_cstr(lhs);
-    const char* s2 = sos_cstr(rhs);
-
-    for (;; ++s1, ++s2) {
-        if (tolower(*s1) != tolower(*s2))
-            return 0;
-        if (*s1 == 0)
-            return 1;
-    }
+    return cmp_cstr(sos_cstr(lhs), str);
 }
+
+// int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs)
+// {
+//     const char* s1 = sos_cstr(lhs);
+//     const char* s2 = sos_cstr(rhs);
+
+//     for (;; ++s1, ++s2) {
+//         if (tolower(*s1) != tolower(*s2))
+//             return 0;
+//         if (*s1 == 0)
+//             return 1;
+//     }
+// }

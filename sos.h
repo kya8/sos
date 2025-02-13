@@ -224,19 +224,16 @@ SOS_STATUS sos_append_range(Sos* restrict self, const char* restrict begin, size
 // Comparison
 
 /**
- * Test if two strings are equal.
+ * Compare two strings, as if comparing with strcmp
+ *
+ * @return See strcmp
  */
-int sos_eq(const Sos* restrict lhs, const Sos* restrict rhs);
+int sos_cmp(const Sos* restrict lhs, const Sos* restrict rhs);
 
 /**
- * Test if two strings are equal.
+ * Compare string with C string.
  */
-int sos_eq_cstr(const Sos* restrict lhs, const char* restrict str);
-
-/**
- * Test if two strings are equal, case insensitive.
- */
-int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs);
+int sos_cmp_cstr(const Sos* restrict lhs, const char* restrict str);
 
 #ifdef __cplusplus
 }

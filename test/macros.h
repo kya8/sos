@@ -17,4 +17,7 @@
 
 #define ASSERT_EQ(L, R) ASSERT((L) == (R))
 
+#define ASSERT_SOS_EQ(L, R) ASSERT(sos_cmp(&(L), &(R)) == 0)
+#define ASSERT_SOS_EQS(L, R) ASSERT(sos_cmp_cstr(&(L), (R)) == 0)
+
 #endif /* SOS_TEST_MACROS_H */
