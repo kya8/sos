@@ -78,8 +78,9 @@ SosStatus sos_init_with_cap(Sos* self, size_t cap)
     if (cap + 1 > SOS_SBO_BUFSIZE) { // long
         cap |= 1u; // add 1 if cap is even
         self->repr.l.data = malloc(cap + 1);
-        if (!self->repr.l.data)
+        if (!self->repr.l.data) {
             return SOS_ERROR_ALLOC;
+        }
         self->repr.l.data[0] = 0;
         self->repr.l.len = 0;
         self->repr.l.cap = cap;
@@ -136,8 +137,9 @@ SosStatus sos_init_from_cstr(Sos* self, const char* str)
         return SOS_OK;
     } else {
         char* const data = malloc((count | 1u) + 1);
-        if (!data)
+        if (!data) {
             return SOS_ERROR_ALLOC;
+        }
         memcpy(data, str, count + 1);
         self->repr.l.data = data;
         self->repr.l.len = count;
@@ -154,8 +156,9 @@ SosStatus sos_init_adopt_cstr(Sos* self, char* str)
     self->repr.l.len = len;
     // Enforce capacity
     char* const data = realloc(str, (len | 1u) + 1);
-    if (!data)
+    if (!data) {
         return SOS_ERROR_ALLOC;
+    }
     self->repr.l.cap = len | 1u;
     self->repr.l.data = data;
     return SOS_OK;
@@ -170,8 +173,9 @@ SosStatus sos_init_format(Sos* self, const char* fmt, ...)
 
     if (len + 1 > SOS_SBO_BUFSIZE) {
         char* const data = malloc((len | 1u) + 1);
-        if (!data)
+        if (!data) {
             return SOS_ERROR_ALLOC;
+        }
         va_start(args, fmt);
         vsnprintf(data, len + 1, fmt, args);
         va_end(args);
@@ -219,8 +223,9 @@ sos_short_to_long(Sos* self, size_t cap)
     assert(!is_long(self) && cap % 2 == 1 && cap >= short_len(self));
 
     char* const data_new = malloc(cap + 1);
-    if (!data_new)
+    if (!data_new) {
         return SOS_ERROR_ALLOC;
+    }
     const size_t len = short_len(self);
     memcpy(data_new, self->repr.s.data, len + 1);
 
@@ -236,8 +241,9 @@ sos_reserve_long(Sos* self, size_t cap)
     if (cap > self->repr.l.cap) {
         cap |= 1u;
         char* const data_new = realloc(self->repr.l.data, cap + 1);
-        if (!data_new)
+        if (!data_new) {
             return SOS_ERROR_ALLOC;
+        }
         self->repr.l.data = data_new;
         self->repr.l.cap = cap;
     }
@@ -262,8 +268,9 @@ SosStatus sos_resize(Sos* self, size_t len, char ch)
     if (is_long(self)) {
         if (len > self->repr.l.len) { // This condition can be skipped.
             const SosStatus ret = sos_reserve_long(self, len);
-            if (ret != SOS_OK)
+            if (ret != SOS_OK) {
                 return ret;
+            }
             for (size_t i = self->repr.l.len; i < len; ++i) {
                 self->repr.l.data[i] = ch;
             }
@@ -283,8 +290,9 @@ SosStatus sos_resize(Sos* self, size_t len, char ch)
             set_short_len(self, len);
         } else {
             const SosStatus ret = sos_short_to_long(self, len | 1u);
-            if (ret != SOS_OK)
+            if (ret != SOS_OK) {
                 return ret;
+            }
             for (size_t i = current_len; i < len; ++i) {
                 self->repr.l.data[i] = ch;
             }
@@ -298,13 +306,15 @@ SosStatus sos_resize(Sos* self, size_t len, char ch)
 
 void sos_shrink_to_fit(Sos* self)
 {
-    if (!is_long(self))
+    if (!is_long(self)) {
         return;
+    }
     const size_t min_cap = self->repr.l.len | 1u;
     if (self->repr.l.cap > min_cap) {
         char* const data_new = realloc(self->repr.l.data, min_cap);
-        if (!data_new)
+        if (!data_new) {
             return;
+        }
         self->repr.l.data = data_new;
         self->repr.l.cap = min_cap;
     }
@@ -313,20 +323,23 @@ void sos_shrink_to_fit(Sos* self)
 SosStatus sos_push(Sos* self, char c)
 {
     if (is_long(self)) {
-        if (self->repr.l.len == SOS_MAX_LEN)
+        if (self->repr.l.len == SOS_MAX_LEN) {
             return SOS_ERROR_MAX_CAP;
+        }
         if (self->repr.l.cap == self->repr.l.len) {
             size_t cap_new;
             if (self->repr.l.cap > SOS_MAX_LEN_FOR_EXPAND) {
                 cap_new = SOS_MAX_LEN;
             } else {
                 cap_new = self->repr.l.cap * 2 + 1;
-                if (cap_new < 31)
+                if (cap_new < 31) {
                     cap_new = 31;
+                }
             }
             char* const data_new = realloc(self->repr.l.data, cap_new + 1);
-            if (!data_new)
+            if (!data_new) {
                 return SOS_ERROR_ALLOC;
+            }
             self->repr.l.data = data_new;
             self->repr.l.cap = cap_new;
         }
@@ -337,8 +350,9 @@ SosStatus sos_push(Sos* self, char c)
         const unsigned char len = short_len(self);
         if (len == SOS_SBO_BUFSIZE - 1) {
             const SosStatus ret = sos_short_to_long(self, 31); //Should ensure SOS_SBO_BUFSIZE < 32(or else, and UCHAR_MAX) at compile time
-            if (ret != SOS_OK)
+            if (ret != SOS_OK) {
                 return ret;
+            }
 
             self->repr.l.data[self->repr.l.len] = c;
             self->repr.l.data[self->repr.l.len + 1] = 0;
@@ -383,8 +397,9 @@ SosStatus sos_append_range(Sos* restrict self, const char* restrict begin, size_
             return SOS_OK;
         } else {
             const SosStatus ret = sos_short_to_long(self, (SOS_SBO_BUFSIZE + count) | 1u);
-            if (ret != SOS_OK)
+            if (ret != SOS_OK) {
                 return ret;
+            }
             memcpy(self->repr.l.data + len, begin, count);
             self->repr.l.data[len + count] = 0;
             self->repr.l.len += count;
@@ -393,8 +408,9 @@ SosStatus sos_append_range(Sos* restrict self, const char* restrict begin, size_
     }
     // long mode
     const SosStatus ret = sos_reserve_long(self, self->repr.l.len + count); //Check for max len
-    if (ret != SOS_OK)
+    if (ret != SOS_OK) {
         return ret;
+    }
 
     memcpy(self->repr.l.data + self->repr.l.len, begin, count);
     self->repr.l.data[self->repr.l.len + count] = 0;
@@ -421,8 +437,9 @@ SosStatus sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs)
     memcpy(self, rhs, sizeof(Sos));
     if (is_long(rhs)) {
         char* const data = malloc(rhs->repr.l.cap + 1);
-        if (!data)
+        if (!data) {
             return SOS_ERROR_ALLOC;
+        }
         memcpy(data, rhs->repr.l.data, rhs->repr.l.len + 1);
         self->repr.l.data = data;
     }
@@ -447,12 +464,15 @@ static int
 cmp_cstr(const char* restrict lhs, const char* restrict rhs)
 {
     for (;; ++lhs, ++rhs) {
-        if (*lhs > *rhs)
+        if (*lhs > *rhs) {
             return 1;
-        if (*lhs < *rhs)
+        }
+        if (*lhs < *rhs) {
             return -1;
-        if (*lhs == 0)
+        }
+        if (*lhs == 0) {
             return 0;
+        }
     }
 }
 
