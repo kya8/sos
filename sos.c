@@ -115,6 +115,18 @@ SosStatusAndBuf sos_init_for_overwrite(Sos* self, size_t len)
     return ret;
 }
 
+SosStatus sos_init_from_range(Sos* self, const char* begin, size_t count)
+{
+    const SosStatusAndBuf ret = sos_init_for_overwrite(self, count);
+    if (ret.status != SOS_OK) {
+        return ret.status;
+    }
+
+    memcpy(ret.str, begin, count);
+    // null byte is written by sos_init_from_range
+    return SOS_OK;
+}
+
 SosStatus sos_init_from_cstr(Sos* self, const char* str)
 {
     const size_t count = strlen(str);
