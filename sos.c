@@ -17,12 +17,22 @@ is_long(const Sos* self)
     return (self->repr.s.len & 1u) == 1;
 }
 
+/**
+ * Get length of short string
+ *
+ * @pre `self` is in short mode
+ */
 static unsigned char
 short_len(const Sos* self)
 {
     return self->repr.s.len >> 1;
 }
 
+/**
+ * Set length of short string
+ * 
+ * @pre `self` is in short mode; `len` <= UCHAR_MAX >> 1
+ */
 static void
 set_short_len(Sos* self, size_t len)
 {
@@ -78,6 +88,31 @@ SosStatus sos_init_with_cap(Sos* self, size_t cap)
     }
 
     return SOS_OK;
+}
+
+SosStatusAndBuf sos_init_for_overwrite(Sos* self, size_t len)
+{
+    SosStatusAndBuf ret;
+
+    if (len + 1 > SOS_SBO_BUFSIZE) {
+        const size_t cap = len | 1u;
+        self->repr.l.data = malloc(cap + 1);
+        if (!self->repr.l.data) {
+            ret.status = SOS_ERROR_ALLOC;
+            return ret;
+        }
+        self->repr.l.data[len] = 0;
+        self->repr.l.len = len;
+        self->repr.l.cap = cap;
+        ret.str = self->repr.l.data;
+    } else {
+        set_short_len(self, len);
+        self->repr.s.data[len] = 0;
+        ret.str = self->repr.s.data;
+    }
+
+    ret.status = SOS_OK;
+    return ret;
 }
 
 SosStatus sos_init_from_cstr(Sos* self, const char* str)
