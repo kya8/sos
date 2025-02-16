@@ -1,6 +1,6 @@
 #include "sos.h"
 #include <stdlib.h> // alloc
-#include <string.h> // memcpy, strlen
+#include <string.h> // memcpy, strlen, strcmp
 #include <stdint.h> // SIZE_MAX
 #include <stdio.h>  // vsnprintf
 #include <assert.h>
@@ -461,7 +461,7 @@ void sos_swap(Sos* restrict s1, Sos* restrict s2)
 }
 
 static int
-cmp_cstr(const char* restrict lhs, const char* restrict rhs)
+cmp_cstr(const char* lhs, const char* rhs)
 {
     for (;; ++lhs, ++rhs) {
         if (*lhs > *rhs) {
@@ -476,25 +476,30 @@ cmp_cstr(const char* restrict lhs, const char* restrict rhs)
     }
 }
 
-int sos_cmp(const Sos* restrict lhs, const Sos* restrict rhs)
+int sos_cmp(const Sos* lhs, const Sos* rhs)
 {
-    return cmp_cstr(sos_cstr(lhs), sos_cstr(rhs));
+    return strcmp(sos_cstr(lhs), sos_cstr(rhs));
 }
 
-int sos_cmp_cstr(const Sos* restrict lhs, const char* restrict str)
+int sos_cmp_cstr(const Sos* lhs, const char* str)
 {
-    return cmp_cstr(sos_cstr(lhs), str);
+    return strcmp(sos_cstr(lhs), str);
 }
 
-// int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs)
-// {
-//     const char* s1 = sos_cstr(lhs);
-//     const char* s2 = sos_cstr(rhs);
 
-//     for (;; ++s1, ++s2) {
-//         if (tolower(*s1) != tolower(*s2))
-//             return 0;
-//         if (*s1 == 0)
-//             return 1;
-//     }
-// }
+#if 0
+
+int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs)
+{
+    const char* s1 = sos_cstr(lhs);
+    const char* s2 = sos_cstr(rhs);
+
+    for (;; ++s1, ++s2) {
+        if (tolower(*s1) != tolower(*s2))
+            return 0;
+        if (*s1 == 0)
+            return 1;
+    }
+}
+
+#endif

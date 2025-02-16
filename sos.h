@@ -263,12 +263,12 @@ SosStatus sos_append_range(Sos* restrict self, const char* restrict begin, size_
  *
  * @return See strcmp
  */
-int sos_cmp(const Sos* restrict lhs, const Sos* restrict rhs);
+int sos_cmp(const Sos* lhs, const Sos* rhs);
 
 /**
  * Compare string with C string.
  */
-int sos_cmp_cstr(const Sos* restrict lhs, const char* restrict str);
+int sos_cmp_cstr(const Sos* lhs, const char* str);
 
 #ifdef __cplusplus
 }
