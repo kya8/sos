@@ -65,6 +65,21 @@ char* sos_cstr_mut(Sos* self)
     return (char*)sos_cstr(self);
 }
 
+SosView sos_view(const Sos* self)
+{
+    if (is_long(self)) {
+        return (SosView) {.data = self->repr.l.data, .len = self->repr.l.len};
+    }
+    return (SosView) {.data = self->repr.s.data, .len = short_len(self)};
+}
+
+SosViewMut sos_view_mut(Sos* self)
+{
+    if (is_long(self)) {
+        return (SosViewMut) {.data = self->repr.l.data, .len = self->repr.l.len};
+    }
+    return (SosViewMut) {.data = self->repr.s.data, .len = short_len(self)};
+}
 
 void sos_init(Sos* self)
 {

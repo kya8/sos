@@ -60,6 +60,18 @@ typedef struct {
     char* str;
 } SosStatusAndBuf;
 
+// Struct representing a mutable string view
+typedef struct {
+    char* data;
+    size_t len;
+} SosViewMut;
+
+// Struct representing an immutable string view
+typedef struct {
+    const char* data;
+    size_t len;
+} SosView;
+
 
 // Methods
 // Initialization functions require the argument to be uninitialized.
@@ -94,6 +106,16 @@ const char* sos_cstr(const Sos* self);
  * Get the null-terminated C string (mutable).
  */
 char* sos_cstr_mut(Sos* self);
+
+/**
+ * Get an immutable string view.
+ */
+SosView sos_view(const Sos* self);
+
+/**
+ * Get a mutable string view.
+ */
+SosViewMut sos_view_mut(Sos* self);
 
 // Functions for initialization and life-time management.
 // Initialization functions will not check if `self` holds any resources and release them.
