@@ -491,6 +491,19 @@ cmp_cstr(const char* lhs, const char* rhs)
     }
 }
 
+static bool
+eq_cstr(const char* lhs, const char* rhs)
+{
+    for (;; ++lhs, ++rhs) {
+        if (*lhs != *rhs) {
+            return false;
+        }
+        if (*lhs == 0) {
+            return true;
+        }
+    }
+}
+
 int sos_cmp(const Sos* lhs, const Sos* rhs)
 {
     return strcmp(sos_cstr(lhs), sos_cstr(rhs));
@@ -499,6 +512,18 @@ int sos_cmp(const Sos* lhs, const Sos* rhs)
 int sos_cmp_cstr(const Sos* lhs, const char* str)
 {
     return strcmp(sos_cstr(lhs), str);
+}
+
+bool sos_eq(const Sos* lhs, const Sos* rhs)
+{
+    const SosView v1 = sos_view(lhs);
+    const SosView v2 = sos_view(rhs);
+
+    if (v1.len != v2.len) {
+        return false;
+    }
+
+    return eq_cstr(v1.data, v2.data);
 }
 
 

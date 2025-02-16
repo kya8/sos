@@ -4,6 +4,7 @@
 // SOS: Small-buffer Optimized String
 
 #include <stddef.h>
+#include <stdbool.h>
 #include "sos_endian.h"
 
 #ifdef __cplusplus
@@ -281,7 +282,7 @@ SosStatus sos_append_range(Sos* restrict self, const char* restrict begin, size_
 // Comparison
 
 /**
- * Compare two strings, as if comparing with strcmp
+ * Compare two strings, as if comparing with strcmp.
  *
  * @return See strcmp
  */
@@ -291,6 +292,13 @@ int sos_cmp(const Sos* lhs, const Sos* rhs);
  * Compare string with C string.
  */
 int sos_cmp_cstr(const Sos* lhs, const char* str);
+
+/**
+ * Test if two strings are equal.
+ *
+ * @note This could be more efficient than sos_cmp for equality test.
+ */
+bool sos_eq(const Sos* lhs, const Sos* rhs);
 
 #ifdef __cplusplus
 }
