@@ -1,5 +1,3 @@
-include(CTest)
-
 set(test_sources
 cmp.c fmt.c simple.c
 )
