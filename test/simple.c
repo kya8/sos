@@ -1,8 +1,9 @@
-#include "macros.h"
-#include <sos.h>
+#include "common.h"
 
-void test_simple(void)
+int simple(int argc, char** argv)
 {
+    (void)argc; (void)argv; // blame CMake
+
     Sos s1, s2, s3, s4;
     sos_init(&s1);
     sos_init_with_cap(&s2, 32);
@@ -51,42 +52,6 @@ void test_simple(void)
     sos_finish(&s4);
     sos_finish(&l1);
     sos_finish(&l2);
-}
-
-void test_cmp(void)
-{
-    Sos s1, s2, s3;
-    sos_init_from_cstr(&s1, "abc");
-    sos_init_from_cstr(&s2, "abcdefghijklmnopqrstuvwxyz0123456789");
-    sos_init_by_copy(&s3, &s2);
-
-    ASSERT(sos_cmp(&s1, &s2) < 0);
-    ASSERT(sos_cmp(&s2, &s3) == 0);
-    ASSERT(sos_cmp_cstr(&s3, "abcdefghijklmnopqrstuvwxyz0023456789") > 0);
-
-    sos_finish(&s1);
-    sos_finish(&s2);
-    sos_finish(&s3);
-}
-
-void test_fmt(void)
-{
-    Sos s1, s2;
-    const char* name = "Bob";
-    sos_init_format(&s1, "Hello, %s!", name);
-    sos_init_format(&s2, "There are %d letters in the word %s.", 45, "pneumonoultramicroscopicsilicovolcanoconiosis");
-    ASSERT_SOS_EQS(s1, "Hello, Bob!");
-    ASSERT_SOS_EQS(s2, "There are 45 letters in the word pneumonoultramicroscopicsilicovolcanoconiosis.");
-
-    sos_finish(&s2);
-    sos_finish(&s1);
-}
-
-int main(void)
-{
-    test_cmp();
-    test_simple();
-    test_fmt();
 
     return 0;
 }
