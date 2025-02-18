@@ -35,11 +35,5 @@ target_include_directories(sos PUBLIC ${GEN_HEADER_DIR} .)
 #-------- Tests
 
 if(ENABLE_TESTS)
-add_executable(test-sos test/test-sos.c)
-target_link_libraries(test-sos PRIVATE sos)
-
-include(CTest)
-
-add_test(NAME sos-simple COMMAND test-sos)
-
+add_subdirectory(test)
 endif()
