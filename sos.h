@@ -233,13 +233,6 @@ void sos_clear(Sos* self);
 SosStatus sos_resize(Sos* self, size_t len, char ch);
 
 /**
- * Similar to sos_resize, but does not initialize expanded length.
- *
- * @post On success, length of string is `len`.
- */
-SosStatus sos_resize_for_overwrite(Sos* self, size_t len);
-
-/**
  * Reserve capacity for string.
  *
  * @post On success, `self` has capacity of at-least `cap`
@@ -278,6 +271,16 @@ SosStatus sos_append_cstr(Sos* restrict self, const char* restrict str);
  * Append a contiguous range of chars.
  */
 SosStatus sos_append_range(Sos* restrict self, const char* restrict begin, size_t count);
+
+/**
+ * Enlarge the string, but does not initialize the expanded content.
+ *
+ * @post On success, length of string is increased by `count`.
+ *       The expanded chars are uninitialized, but the terminating null byte is written.
+ * @return Status code, along with a pointer to the first character of the expanded range.
+ *         If `count` is zero, the returned pointer points to the terminating null byte.
+ */
+SosStatusAndBuf sos_expand_for_overwrite(Sos* self, size_t count);
 
 // Comparison
 
