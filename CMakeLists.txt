@@ -35,5 +35,6 @@ target_include_directories(sos PUBLIC ${GEN_HEADER_DIR} .)
 #-------- Tests
 
 if(ENABLE_TESTS)
+include(CTest)
 add_subdirectory(test)
 endif()
