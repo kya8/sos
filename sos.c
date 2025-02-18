@@ -475,22 +475,6 @@ void sos_swap(Sos* restrict s1, Sos* restrict s2)
     memcpy(s2, &t, sizeof(Sos));
 }
 
-static int
-cmp_cstr(const char* lhs, const char* rhs)
-{
-    for (;; ++lhs, ++rhs) {
-        if (*lhs > *rhs) {
-            return 1;
-        }
-        if (*lhs < *rhs) {
-            return -1;
-        }
-        if (*lhs == 0) {
-            return 0;
-        }
-    }
-}
-
 static bool
 eq_cstr(const char* lhs, const char* rhs)
 {
@@ -528,6 +512,22 @@ bool sos_eq(const Sos* lhs, const Sos* rhs)
 
 
 #if 0
+
+static int
+cmp_cstr(const char* lhs, const char* rhs)
+{
+    for (;; ++lhs, ++rhs) {
+        if (*lhs > *rhs) {
+            return 1;
+        }
+        if (*lhs < *rhs) {
+            return -1;
+        }
+        if (*lhs == 0) {
+            return 0;
+        }
+    }
+}
 
 int sos_ieq(const Sos* restrict lhs, const Sos* restrict rhs)
 {
