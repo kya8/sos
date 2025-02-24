@@ -1,10 +1,15 @@
 #include "sos.h"
-#include <stdlib.h> // alloc
 #include <string.h> // memcpy, strlen, strcmp
 #include <stdint.h> // SIZE_MAX
-#include <stdio.h>  // vsnprintf
 #include <assert.h>
+#include <stdio.h>  // vsnprintf
 #include <stdarg.h>
+
+// Dynamic allocation
+#include <stdlib.h>
+#define sos_malloc(s) malloc(s)
+#define sos_realloc(p, s) realloc((p), (s))
+#define sos_free(p) free((p))
 
 // TODO: check for cap/size
 
@@ -30,7 +35,7 @@ short_len(const Sos* self)
 
 /**
  * Set length of short string
- * 
+ *
  * @pre `self` is in short mode; `len` <= UCHAR_MAX >> 1
  */
 static void
@@ -92,7 +97,7 @@ SosStatus sos_init_with_cap(Sos* self, size_t cap)
 {
     if (cap + 1 > SOS_SBO_BUFSIZE) { // long
         cap |= 1u; // add 1 if cap is even
-        self->repr.l.data = malloc(cap + 1);
+        self->repr.l.data = sos_malloc(cap + 1);
         if (!self->repr.l.data) {
             return SOS_ERROR_ALLOC;
         }
@@ -112,7 +117,7 @@ SosStatusAndBuf sos_init_for_overwrite(Sos* self, size_t len)
 
     if (len + 1 > SOS_SBO_BUFSIZE) {
         const size_t cap = len | 1u;
-        self->repr.l.data = malloc(cap + 1);
+        self->repr.l.data = sos_malloc(cap + 1);
         if (!self->repr.l.data) {
             ret.status = SOS_ERROR_ALLOC;
             return ret;
@@ -151,7 +156,7 @@ SosStatus sos_init_from_cstr(Sos* self, const char* str)
         set_short_len(self, count);
         return SOS_OK;
     } else {
-        char* const data = malloc((count | 1u) + 1);
+        char* const data = sos_malloc((count | 1u) + 1);
         if (!data) {
             return SOS_ERROR_ALLOC;
         }
@@ -170,7 +175,7 @@ SosStatus sos_init_adopt_cstr(Sos* self, char* str)
     const size_t len = strlen(str);
     self->repr.l.len = len;
     // Enforce capacity
-    char* const data = realloc(str, (len | 1u) + 1);
+    char* const data = sos_realloc(str, (len | 1u) + 1);
     if (!data) {
         return SOS_ERROR_ALLOC;
     }
@@ -187,7 +192,7 @@ SosStatus sos_init_format(Sos* self, const char* fmt, ...)
     va_end(args);
 
     if (len + 1 > SOS_SBO_BUFSIZE) {
-        char* const data = malloc((len | 1u) + 1);
+        char* const data = sos_malloc((len | 1u) + 1);
         if (!data) {
             return SOS_ERROR_ALLOC;
         }
@@ -210,7 +215,7 @@ SosStatus sos_init_format(Sos* self, const char* fmt, ...)
 void sos_finish(Sos* self)
 {
     if (is_long(self)) {
-        free(self->repr.l.data);
+        sos_free(self->repr.l.data);
     }
     // Provide a safeguard, although self should not be used after sos_finish, unless re-initialized
     self->repr.s.len = 0;
@@ -237,7 +242,7 @@ sos_short_to_long(Sos* self, size_t cap)
 {
     assert(!is_long(self) && cap % 2 == 1 && cap >= short_len(self));
 
-    char* const data_new = malloc(cap + 1);
+    char* const data_new = sos_malloc(cap + 1);
     if (!data_new) {
         return SOS_ERROR_ALLOC;
     }
@@ -255,7 +260,7 @@ sos_reserve_long(Sos* self, size_t cap)
 {
     if (cap > self->repr.l.cap) {
         cap |= 1u;
-        char* const data_new = realloc(self->repr.l.data, cap + 1);
+        char* const data_new = sos_realloc(self->repr.l.data, cap + 1);
         if (!data_new) {
             return SOS_ERROR_ALLOC;
         }
@@ -326,7 +331,7 @@ void sos_shrink_to_fit(Sos* self)
     }
     const size_t min_cap = self->repr.l.len | 1u;
     if (self->repr.l.cap > min_cap) {
-        char* const data_new = realloc(self->repr.l.data, min_cap);
+        char* const data_new = sos_realloc(self->repr.l.data, min_cap);
         if (!data_new) {
             return;
         }
@@ -351,7 +356,7 @@ SosStatus sos_push(Sos* self, char c)
                     cap_new = 31;
                 }
             }
-            char* const data_new = realloc(self->repr.l.data, cap_new + 1);
+            char* const data_new = sos_realloc(self->repr.l.data, cap_new + 1);
             if (!data_new) {
                 return SOS_ERROR_ALLOC;
             }
@@ -451,7 +456,7 @@ SosStatus sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs)
 {
     memcpy(self, rhs, sizeof(Sos));
     if (is_long(rhs)) {
-        char* const data = malloc(rhs->repr.l.cap + 1);
+        char* const data = sos_malloc(rhs->repr.l.cap + 1);
         if (!data) {
             return SOS_ERROR_ALLOC;
         }
