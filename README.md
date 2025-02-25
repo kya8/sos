@@ -1,5 +1,5 @@
 # Intro
-`sos` is an implementation of **S**mall-buffer **O**ptimized **S**tring for C.
+`sos` is an implementation of **S**mall-buffer **O**ptimized **S**tring for C, written in ISO C99.
 
 An `sos` string is able to store short strings inline within itself, and allocate additional memory as the string grows.
 This reduces dynamic memory allocations especially when dealing with large amount of short strings.
@@ -11,7 +11,8 @@ The idea is inspired by the `std::string` implementation in libc++.
 
 The internal string buffer is always null-terminated like `std::string`, so `sos` can be used as C string at no cost.
 
-On typical 64-bit platforms, `sos` can hold short strings with length up to 22 chars (excluding the null character).
+On typical 64-bit platforms, `sos` takes 24 bytes, and is able to hold short strings with length up to 22 chars (excluding the null character).
+The remaining byte tracks the length of the string, so length access is always O(1).
 
 # Usage
 Minimal example:
@@ -33,7 +34,7 @@ sos_finish(&s3);
 sos_finish(&s2);
 sos_finish(&s1);
 ```
-See `sos.h` for more.
+See [`sos.h`](sos.h) for more.
 
 # TODO
 * Configurable small buffer size
