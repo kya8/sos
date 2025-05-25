@@ -1,6 +1,7 @@
 #include "sos.h"
 #include <string.h> // memcpy, strlen, strcmp
 #include <stdint.h> // SIZE_MAX
+#include <limits.h>
 #include <assert.h>
 #include <stdio.h>  // vsnprintf
 #include <stdarg.h>
@@ -30,6 +31,7 @@ is_long(const Sos* self)
 static unsigned char
 short_len(const Sos* self)
 {
+    assert(!is_long(self));
     return self->repr.s.len >> 1;
 }
 
@@ -41,6 +43,8 @@ short_len(const Sos* self)
 static void
 set_short_len(Sos* self, size_t len)
 {
+    assert(!is_long(self));
+    assert(len <= UCHAR_MAX >> 1);
     self->repr.s.len = (unsigned char)(len << 1);
 }
 
@@ -258,6 +262,7 @@ sos_short_to_long(Sos* self, size_t cap)
 static SosStatus
 sos_reserve_long(Sos* self, size_t cap)
 {
+    assert(is_long(self));
     if (cap > self->repr.l.cap) {
         cap |= 1u;
         char* const data_new = sos_realloc(self->repr.l.data, cap + 1);
