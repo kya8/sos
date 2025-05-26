@@ -485,6 +485,36 @@ void sos_swap(Sos* restrict s1, Sos* restrict s2)
     memcpy(s2, &t, sizeof(Sos));
 }
 
+SosStatusAndBuf sos_expand_for_overwrite(Sos* self, size_t count)
+{
+    if (!is_long(self)) {
+        const size_t len = short_len(self);
+        if (len + count <= SOS_SBO_BUFSIZE - 1) { //Check for max len
+            self->repr.s.data[len + count] = 0;
+            self->repr.s.len += (unsigned char)count << 1;
+            return (SosStatusAndBuf){.status = SOS_OK, .str = self->repr.s.data + len};
+        } else {
+            const SosStatus ret = sos_short_to_long(self, (SOS_SBO_BUFSIZE + count) | 1u);
+            if (ret != SOS_OK) {
+                return (SosStatusAndBuf){.status = ret};
+            }
+            self->repr.l.data[len + count] = 0;
+            self->repr.l.len += count;
+            return (SosStatusAndBuf){.status = SOS_OK, .str = self->repr.l.data + len};
+        }
+    }
+    // long mode
+    const SosStatus ret = sos_reserve_long(self, self->repr.l.len + count); //Check for max len
+    if (ret != SOS_OK) {
+        return (SosStatusAndBuf){.status = ret};
+    }
+
+    self->repr.l.data[self->repr.l.len + count] = 0;
+    char* const str = self->repr.l.data + self->repr.l.len;
+    self->repr.l.len += count;
+    return (SosStatusAndBuf){.status = SOS_OK, .str = str};;
+}
+
 static bool
 eq_cstr(const char* lhs, const char* rhs)
 {
