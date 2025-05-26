@@ -2,9 +2,7 @@
 #ifndef SOS_ENDIAN_H
 #define SOS_ENDIAN_H
 
-#define SOS_ENDIAN_IS_BE @SOS_CMAKE_ENDIAN_IS_BE@
-
-#if SOS_ENDIAN_IS_BE
+#if @SOS_ENDIAN_IS_BE@
 #define SOS_BE 1
 #endif
 
