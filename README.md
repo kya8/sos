@@ -35,6 +35,7 @@ sos_finish(&s2);
 sos_finish(&s1);
 ```
 See [`sos.h`](sos.h) for more.
+`sos` employs explicit lifetime/buffer management, to give the programmer granular control.
 
 # TODO
 * Configurable small buffer size
