@@ -1,0 +1,50 @@
+name: Run tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest]
+        build_type: [Release, Debug]
+        #c_compiler: [gcc, clang, cl]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Set up MSVC environment on Windows
+      # Required for CMake generators other than MSBuild
+      if: ${{ runner.os == 'Windows' }}
+      uses: TheMrMilchmann/setup-msvc-dev@v4
+      with:
+          arch: x64
+
+    - name: Configure CMake
+      run: >
+        cmake -S ${{ github.workspace }} -G Ninja
+        -B ${{ steps.strings.outputs.build-output-dir }}
+        -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+    - name: Build
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
+
+    - name: Test
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: ctest
