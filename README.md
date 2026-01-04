@@ -14,6 +14,9 @@ The internal string buffer is always null-terminated like `std::string`, so `sos
 On typical 64-bit platforms, `sos` takes 24 bytes, and is able to hold short strings with length up to 22 chars (excluding the null character).
 The remaining byte tracks the length of the string, so length access is always O(1).
 
+(Although technically, counting until NUL is also O(1) since there's a compile-time limit to the length of the short string, and it shouldn't be significantly slower.
+Some implementations choose to not use an extra byte for length tracking.) 
+
 # Usage
 Minimal example:
 ```c
