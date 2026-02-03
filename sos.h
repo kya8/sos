@@ -183,12 +183,24 @@ SosStatus sos_init_adopt_cstr(Sos* self, char* str);
 SosStatus sos_init_format(Sos* self, const char* fmt, ...);
 
 /**
- * Release allocated memory, if any.
+ * Destroy a string, making `self` uninitialized.
+ * This will release allocated memory, if any.
  *
  * @pre `self` is initialized.
  * @post `self` is uninitialized.
  */
 void sos_finish(Sos* self);
+
+/**
+ * Transfer ownership of the string out of `self`.
+ * Afterwards, the user is responsible for freeing it.
+ *
+ * @return The C string that was managed by `self`, along with its length. It should be freed by calling free() on it.
+ *         The returned C string can be NULL if allocation fails.
+ * @pre `self` is initialized.
+ * @post `self` is uninitialized.
+ */
+SosViewMut sos_release(Sos* self);
 
 /**
  * Swap two strings.

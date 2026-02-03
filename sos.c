@@ -226,6 +226,20 @@ void sos_finish(Sos* self)
     self->repr.s.data[0] = 0;
 }
 
+SosViewMut sos_release(Sos* self)
+{
+    if (is_long(self)) {
+        return (SosViewMut) { .data = self->repr.l.data, .len = self->repr.l.len };
+    }
+    // In short mode, we have to copy the short string to a new buffer.
+    const size_t len = short_len(self);
+    char* const buf = sos_malloc(len + 1);
+    if (buf) {
+        memcpy(buf, self->repr.s.data, len + 1);
+    }
+    return (SosViewMut) { .data = buf, .len = len };
+}
+
 void sos_clear(Sos* self)
 {
     if (is_long(self)) {
