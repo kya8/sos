@@ -223,7 +223,6 @@ SosStatus sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs);
  *      `rhs` is initialized.
  * @post `self` is initialized by moving from `rhs`.
  *       `rhs` is uninitialized.
- * @note Internally this is same as sos_swap
  */
 void sos_init_by_move(Sos* restrict self, Sos* restrict rhs);
 

@@ -488,7 +488,7 @@ SosStatus sos_init_by_copy(Sos* restrict self, const Sos* restrict rhs)
 
 void sos_init_by_move(Sos* restrict self, Sos* restrict rhs)
 {
-    sos_swap(self, rhs);
+    memcpy(self, rhs, sizeof(Sos));
 }
 
 void sos_swap(Sos* restrict s1, Sos* restrict s2)
