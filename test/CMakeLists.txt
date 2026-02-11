@@ -1,6 +1,4 @@
-set(test_sources
-cmp.c fmt.c simple.c
-)
+file(GLOB_RECURSE test_sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} CONFIGURE_DEPENDS *.c *.cpp)
 
 create_test_sourcelist(test_sources_driver test_sos.c ${test_sources})
 
