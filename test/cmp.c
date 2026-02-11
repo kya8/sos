@@ -1,4 +1,4 @@
-#include "common.h"
+#include "macros.h"
 
 int cmp(int argc, char** argv)
 {

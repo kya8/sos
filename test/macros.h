@@ -1,5 +1,5 @@
-#ifndef SOS_TEST_COMMON_H
-#define SOS_TEST_COMMON_H
+#ifndef SOS_TEST_MACROS_H
+#define SOS_TEST_MACROS_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,4 +21,4 @@
 #define ASSERT_SOS_EQ(L, R) ASSERT(sos_cmp(&(L), &(R)) == 0)
 #define ASSERT_SOS_EQS(L, R) ASSERT(sos_cmp_cstr(&(L), (R)) == 0)
 
-#endif /* SOS_TEST_COMMON_H */
+#endif /* SOS_TEST_MACROS_H */

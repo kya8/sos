@@ -1,4 +1,4 @@
-#include "common.h"
+#include "macros.h"
 
 int fmt(int argc, char** argv)
 {

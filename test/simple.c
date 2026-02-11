@@ -1,4 +1,4 @@
-#include "common.h"
+#include "macros.h"
 
 int simple(int argc, char** argv)
 {
