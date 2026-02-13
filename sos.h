@@ -196,7 +196,7 @@ void sos_finish(Sos* self);
  * Afterwards, the user is responsible for freeing it.
  *
  * @return The C string that was managed by `self`, along with its length. It should be freed by calling free() on it.
- *         The returned C string can be NULL if allocation fails.
+ *         The returned C string can be NULL if allocation fails, in which case `self` is not modified.
  * @pre `self` is initialized.
  * @post `self` is uninitialized.
  */
