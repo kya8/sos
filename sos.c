@@ -36,14 +36,13 @@ short_len(const Sos* self)
 }
 
 /**
- * Set length of short string
+ * Set length of short string. Essentially puts `self` in short mode.
  *
- * @pre `self` is in short mode; `len` <= UCHAR_MAX >> 1
+ * @pre `len` <= UCHAR_MAX >> 1
  */
 static void
 set_short_len(Sos* self, size_t len)
 {
-    assert(!is_long(self));
     assert(len <= UCHAR_MAX >> 1);
     self->repr.s.len = (unsigned char)(len << 1);
 }
